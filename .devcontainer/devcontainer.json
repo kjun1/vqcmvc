@@ -1,0 +1,74 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/debian
+{
+	"name": "crossmodal",
+	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
+	"workspaceFolder": "/home/workspace",
+	"workspaceMount": "type=bind,source=${localWorkspaceFolder},target=/home/workspace",
+	"containerEnv": {
+		"WORKSPACE": "/home/workspace"
+	},
+	// Add the IDs of extensions you want installed when the container is created.
+	"extensions": [
+		"ms-python.python",
+		"ms-python.black-formatter",
+		"usernamehw.errorlens",
+		"oderwat.indent-rainbow",
+		"shardulm94.trailing-spaces",
+		"njpwerner.autodocstring"
+	],
+	// Set "default" container specific settings.json value on container create.
+	"settings": {
+		"files.insertFinalNewline": true,
+		"files.trimTrailingWhitespace": true,
+		"python.formatting.blackPath": "/root/.pyenv/shims/black",
+		"python.formatting.provider": "black",
+		"black-formatter.args": [
+			"--line-length=79"
+		],
+		"editor.formatOnSave": true,
+		"python.linting.flake8Enabled": true,
+		"python.linting.flake8Path": "/root/.pyenv/shims/flake8",
+		"python.linting.flake8CategorySeverity.E": "Warning",
+		"python.linting.flake8CategorySeverity.F": "Warning",
+		"python.linting.flake8CategorySeverity.W": "Warning",
+		"isort.path": [
+			"/root/.pyenv/shims/isort"
+		],
+		"editor.codeActionsOnSave": {
+			"source.organizeImports": true
+		},
+		"python.linting.mypyCategorySeverity.error": "Information",
+		"python.linting.mypyEnabled": true,
+		"python.linting.mypyPath": "/root/.pyenv/shims/mypy",
+		"python.linting.mypyArgs": [
+			"--follow-imports=skip",
+			"--ignore-missing-imports",
+			"--show-column-numbers",
+			"--no-pretty",
+			"--warn-return-any",
+			"--no-implicit-optional",
+			"--disallow-untyped-calls",
+			"--disallow-untyped-defs"
+		],
+		"python.defaultInterpreterPath": "/root/.pyenv/shims/python",
+		"python.linting.prospectorEnabled": false,
+		"python.linting.pycodestyleEnabled": false,
+		"python.linting.pydocstyleEnabled": false,
+		"python.linting.enabled": true
+	}
+	// Features to add to the dev container. More info: https://containers.dev/features.
+	//"features": {
+	//	"ghcr.io/devcontainers/features/nvidia-cuda:1": {"cudaVersion": "11.６"}
+	//},
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// "forwardPorts": [],
+	// Configure tool-specific properties.
+	// "customizations": {},
+	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+	// "remoteUser": "root"
+	//"onCreateCommand": ""
+}
