@@ -43,4 +43,5 @@ WORKDIR /home/workspace
 COPY poetry.lock .
 COPY pyproject.toml .
 RUN poetry config virtualenvs.create false
+RUN poetry lock
 RUN poetry install
