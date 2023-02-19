@@ -25,7 +25,7 @@ libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev \
 xz-utils tk-dev libffi-dev liblzma-dev python-openssl git
 
 # pyenv settings
-ENV PYTHON_VERSION 3.8.16
+ENV PYTHON_VERSION 3.10.9
 RUN git clone https://github.com/pyenv/pyenv.git $HOME/.pyenv
 ENV PYENV_ROOT $HOME/.pyenv
 ENV PATH $PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH

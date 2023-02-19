@@ -6,7 +6,7 @@ authors = ["kjun1 <p.k.maejima1211@icloud.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.8.16"
+python = "^3.10.9"
 torch = "^1.13.1"
 torchaudio = "^0.13.1"
 torchvision = "^0.14.1"

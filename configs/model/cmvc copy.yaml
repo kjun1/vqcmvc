@@ -1,0 +1,23 @@
+net:
+  _target_: src.models.cmvc.Model
+
+  uttrenc:
+    _target_: src.models.components.block.UttrEncoder
+    params:
+      num_layers: 4
+
+      conv0_channels: 1
+      conv1_channels: 16
+      conv2_channels: 32
+      conv3_channels: 32
+      conv4_channels: 16
+
+      conv1_kernel: [3, 9]
+      conv2_kernel: [4, 8]
+      conv3_kernel: [4, 8]
+      conv4_kernel: [9, 5]
+
+      conv1_stride: [1, 1]
+      conv2_stride: [2, 2]
+      conv3_stride: [2, 2]
+      conv4_stride: [9, 1]
