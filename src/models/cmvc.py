@@ -1,19 +1,12 @@
 import pytorch_lightning as pl
 import torch
-
-from src.models.components.block import UttrEncoder
+from torch import nn
 
 
 class Model(pl.LightningModule):
     def __init__(self, *args, **kwargs):
         super().__init__()
-        print(kwargs)
-        # self.save_hyperparameters(params)
-        # self.ue = uttrenc
-        # self.fe = FaceEncoder(self.hparams)
-        # self.ve = VoiceEncoder(self.hparams)
-        # self.ud = UttrDecoder(self.hparams)
-        # self.fd = FaceDecoder(self.hparams)
+        self.net = kwargs["net"]
 
     def forward(self, x, y):
         z, _ = torch.chunk(self.ue(x), 2, dim=1)

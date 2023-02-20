@@ -1,5 +1,5 @@
 net:
-  _target_: src.models.cmvc.Model
+  _target_: src.models.components.net.CrossModal
 
   uttrenc:
     _target_: src.models.components.block.UttrEncoder
