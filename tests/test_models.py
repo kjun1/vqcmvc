@@ -1,6 +1,6 @@
 import pytest
 
-from src.models.components.block import UttrEncoder
+from src.models.components.net import UttrEncoder
 
 
 def test_load_checkpoint() -> None:

@@ -1,8 +1,8 @@
 net:
-  _target_: src.models.cmvc.Model
+  _target_: src.models.components.net.CrossModal
 
   uttrenc:
-    _target_: src.models.components.block.UttrEncoder
+    _target_: src.models.components.net.UttrEncoder
     params:
       num_layers: 4
 
@@ -23,7 +23,7 @@ net:
       conv4_stride: [9, 1]
 
   uttrdec:
-    _target_: src.models.components.block.UttrDecoder
+    _target_: src.models.components.net.UttrDecoder
     params:
       num_layers: 4
       latent_channels: 8
@@ -45,7 +45,7 @@ net:
       conv4_stride: [1, 1]
 
   faceenc:
-    _target_: src.models.components.block.FaceEncoder
+    _target_: src.models.components.net.FaceEncoder
     params:
       num_layers: 7
       conv_layers: 5
@@ -75,7 +75,7 @@ net:
       conv5_stride: [2, 2]
 
   facedec:
-    _target_: src.models.components.block.FaceDecoder
+    _target_: src.models.components.net.FaceDecoder
     params:
       num_layers: 7
       linear_layers: 2
@@ -96,7 +96,7 @@ net:
       conv2_kernel: [6, 6]
       conv3_kernel: [6, 6]
       conv4_kernel: [6, 6]
-      conv5_kernel: [5, 5]
+      conv5_kernel: [6, 6]
 
       conv1_stride: [2, 2]
       conv2_stride: [2, 2]
@@ -105,7 +105,7 @@ net:
       conv5_stride: [2, 2]
 
   voiceenc:
-    _target_: src.models.components.block.VoiceEncoder
+    _target_: src.models.components.net.VoiceEncoder
     params:
 
       num_layers: 7

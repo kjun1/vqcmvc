@@ -2,7 +2,7 @@ net:
   _target_: src.models.components.net.CrossModal
 
   uttrenc:
-    _target_: src.models.components.block.UttrEncoder
+    _target_: src.models.components.net.UttrEncoder
     params:
       num_layers: 4
 
@@ -21,3 +21,55 @@ net:
       conv2_stride: [2, 2]
       conv3_stride: [2, 2]
       conv4_stride: [9, 1]
+
+  uttrdec:
+    _target_: src.models.components.net.UttrDecoder
+    params:
+      num_layers: 4
+      latent_channels: 8
+
+      conv0_channels: 8
+      conv1_channels: 16
+      conv2_channels: 16
+      conv3_channels: 8
+      conv4_channels: 2
+
+      conv1_kernel: [9, 5]
+      conv2_kernel: [4, 8]
+      conv3_kernel: [4, 8]
+      conv4_kernel: [3, 9]
+
+      conv1_stride: [9, 1]
+      conv2_stride: [2, 2]
+      conv3_stride: [2, 2]
+      conv4_stride: [1, 1]
+
+  faceenc:
+    _target_: src.models.components.net.FaceEncoder
+    params:
+      num_layers: 7
+      conv_layers: 5
+      linear_layers: 2
+
+      conv0_channels: 3
+      conv1_channels: 32
+      conv2_channels: 64
+      conv3_channels: 128
+      conv4_channels: 128
+      conv5_channels: 256
+
+      linear0_size: 256
+      linear1_size: 16
+      linear2_size: 16
+
+      conv1_kernel: [6, 6]
+      conv2_kernel: [6, 6]
+      conv3_kernel: [4, 4]
+      conv4_kernel: [4, 4]
+      conv5_kernel: [2, 2]
+
+      conv1_stride: [2, 2]
+      conv2_stride: [2, 2]
+      conv3_stride: [2, 2]
+      conv4_stride: [2, 2]
+      conv5_stride: [2, 2]

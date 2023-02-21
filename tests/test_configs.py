@@ -1,9 +1,8 @@
 import hydra
 import pytest
+import torch
 from hydra import compose, initialize
 from omegaconf import DictConfig
-
-from src.models.components.block import conv_padding, deconv_padding
 
 
 class TestNet:
@@ -21,21 +20,44 @@ class TestNet:
             assert cfg.net.uttrenc.params.conv1_kernel
             assert cfg.net.uttrenc.params.conv1_stride
 
-    def test_instantiate_1(self) -> None:
+    def test_uttrencoder(self) -> None:
         with initialize(version_base=None, config_path="../configs/model"):
-            cfg = compose(config_name="cmvc copy.yaml", return_hydra_config=True)
-            assert hydra.utils.instantiate(cfg.net.uttrenc)
+            cfg = compose(config_name="cmvc.yaml", return_hydra_config=True)
+            enc = hydra.utils.instantiate(cfg.net.uttrenc)
+        x = torch.ones(64, 1, 36, 40)
+        assert enc(x).shape == torch.Size([64, 16, 1, 10])
 
-    def test_instantiate_2(self) -> None:
+    def test_uttrdecoder(self) -> None:
+        with initialize(version_base=None, config_path="../configs/model"):
+            cfg = compose(config_name="cmvc.yaml", return_hydra_config=True)
+            dec = hydra.utils.instantiate(cfg.net.uttrdec)
+        x = torch.ones(64, 8, 1, 10)
+        y = torch.ones(64, 8, 1, 1)
+        assert dec(x, y).shape == torch.Size([64, 2, 36, 40])
+
+    def test_faceencoder(self) -> None:
+        with initialize(version_base=None, config_path="../configs/model"):
+            cfg = compose(config_name="cmvc.yaml", return_hydra_config=True)
+            enc = hydra.utils.instantiate(cfg.net.faceenc)
+        x = torch.ones(64, 3, 32, 32)
+        assert enc(x).shape == torch.Size([64, 16, 1, 1])
+
+    def test_facedecoder(self) -> None:
+        with initialize(version_base=None, config_path="../configs/model"):
+            cfg = compose(config_name="cmvc.yaml", return_hydra_config=True)
+            dec = hydra.utils.instantiate(cfg.net.facedec)
+        x = torch.ones(64, 8)
+        #print(dec)
+        print(dec(x).shape)
+
+    def test_instantiate(self) -> None:
         with initialize(version_base=None, config_path="../configs/model"):
             cfg = compose(config_name="cmvc copy.yaml", return_hydra_config=True)
             assert hydra.utils.instantiate(cfg.net)
 
 
+"""
 class TestPadding:
-    """
-    pytestの設定をいれたい
-    """
     def test_conv_padding_int(self) -> None:
         conv_padding(1, 1)
 
@@ -47,3 +69,4 @@ class TestPadding:
 
     def test_deconv_padding_tuple(self) -> None:
         deconv_padding((1, 1), (1, 1))
+"""
