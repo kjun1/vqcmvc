@@ -203,7 +203,6 @@ class FaceDecoder(nn.Module):
                 bias=False,
             )
 
-
         for i in range(1, self.conv_layers):
             self.model[f'deconv{i}'] = nn.ConvTranspose2d(
                 params[f'conv{i-1}_channels'],
@@ -249,70 +248,117 @@ class FaceDecoder(nn.Module):
 
         return x
 
-class VoiceEncoder(pl.LightningModule):
-    def __init__(self, params):
+
+class VoiceEncoder(nn.Module):
+    def __init__(self, params: Union[dict, None] = None) -> None:
         super().__init__()
         self.model = nn.ModuleDict()
-        self.save_hyperparameters(params)
+        if params is not None:
+            self._init_model(params)
 
-        self.model['lr'] = GLU()
+    def _init_model(self, params: dict) -> None:
+        self.model['activation'] = nn.GLU(dim=1)
+        self.num_layers = params['num_layers']
 
-        NUM_LAYERS = self.hparams['VOICE_ENC_NUM_LAYERS']
-
-        for i in range(1, NUM_LAYERS):
-            self.model[f'conv{i}a'] = nn.Conv2d(
-                self.hparams[f'VOICE_ENC_CONV{i}_CHANNELS'],
-                self.hparams[f'VOICE_ENC_CONV{i+1}_CHANNELS'],
-                self.hparams[f'VOICE_ENC_CONV{i}_KERNEL'],
-                self.hparams[f'VOICE_ENC_CONV{i}_STRIDE'],
-                self.hparams[f'VOICE_ENC_CONV{i}_PADDING'],
+        for i in range(1, self.num_layers):
+            self.model[f'conv{i}'] = nn.Conv2d(
+                params[f'conv{i-1}_channels'],
+                params[f'conv{i}_channels']*2,
+                params[f'conv{i}_kernel'],
+                params[f'conv{i}_stride'],
+                **conv_padding(
+                    params[f'conv{i}_kernel'],
+                    params[f'conv{i}_stride']
+                    ),
                 bias=False, padding_mode='replicate'
             )
-            self.model[f'bn{i}a'] = nn.BatchNorm2d(self.hparams[f'VOICE_ENC_CONV{i+1}_CHANNELS'])
+            self.model[f'bn{i}'] = nn.BatchNorm2d(
+                params[f'conv{i}_channels']*2
+                )
 
-            self.model[f'conv{i}b'] = nn.Conv2d(
-                self.hparams[f'VOICE_ENC_CONV{i}_CHANNELS'],
-                self.hparams[f'VOICE_ENC_CONV{i+1}_CHANNELS'],
-                self.hparams[f'VOICE_ENC_CONV{i}_KERNEL'],
-                self.hparams[f'VOICE_ENC_CONV{i}_STRIDE'],
-                self.hparams[f'VOICE_ENC_CONV{i}_PADDING'],
-                bias=False, padding_mode='replicate'
-            )
-            self.model[f'bn{i}b'] = nn.BatchNorm2d(self.hparams[f'VOICE_ENC_CONV{i+1}_CHANNELS'])
-
-        self.model[f'conv{NUM_LAYERS}'] =  nn.Conv2d(
-            self.hparams[f'VOICE_ENC_CONV{NUM_LAYERS}_CHANNELS'],
-            self.hparams[f'VOICE_ENC_CONV{NUM_LAYERS+1}_CHANNELS'],
-            self.hparams[f'VOICE_ENC_CONV{NUM_LAYERS}_KERNEL'],
-            self.hparams[f'VOICE_ENC_CONV{NUM_LAYERS}_STRIDE'],
-            self.hparams[f'VOICE_ENC_CONV{NUM_LAYERS}_PADDING'],
+        self.model[f'conv{self.num_layers}'] = nn.Conv2d(
+            params[f'conv{self.num_layers-1}_channels'],
+            params[f'conv{self.num_layers}_channels'],
+            params[f'conv{self.num_layers}_kernel'],
+            params[f'conv{self.num_layers}_stride'],
+            **conv_padding(
+                params[f'conv{self.num_layers}_kernel'],
+                params[f'conv{self.num_layers}_stride']
+                ),
             bias=False, padding_mode='replicate'
-        )
+            )
 
-
-
-    def forward(self, x):
-        NUM_LAYERS = self.hparams['VOICE_ENC_NUM_LAYERS']
-        for i in range(1, NUM_LAYERS):
-            x1 = self.model[f'conv{i}a'](x)
-            x1 = self.model[f'bn{i}a'](x1)
-            x2 = self.model[f'conv{i}b'](x)
-            x2 = self.model[f'bn{i}b'](x1)
-            x = self.model['lr'](x1, x2)
-        x = self.model[f'conv{NUM_LAYERS}'](x)
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        for i in range(1, self.num_layers):
+            x = self.model[f'conv{i}'](x)
+            x = self.model[f'bn{i}'](x)
+            x = self.model['activation'](x)
+        x = self.model[f'conv{self.num_layers}'](x)
         return x
 
 
 class CrossModal(nn.Module):
-    def __init__(self, uttrenc, uttrdec, faceenc, facedec, vonceenc):
+    def __init__(self, uttrenc, uttrdec, faceenc, facedec, voiceenc):
         super().__init__()
-        self.uttrenc = uttrenc
-        self.uttrdec = uttrdec
-        self.faceenc = faceenc
-        self.facedec = facedec
+        self.ue = uttrenc
+        self.ud = uttrdec
+        self.fe = faceenc
+        self.fd = facedec
+        self.ve = voiceenc
 
     def forward(self, x, y):
         z, _ = torch.chunk(self.ue(x), 2, dim=1)
         c, _ = torch.chunk(self.fe(y), 2, dim=1)
         x, _ = torch.chunk(self.ud(z, c), 2, dim=1)
         return x
+
+    def loss_function(self, x, y):
+        mu, log_var = torch.chunk(self.ue(x), 2, dim=1)
+        log_var = torch.sigmoid(log_var)
+        uttr_kl = self._KL_divergence(mu, log_var)
+        z = self._sample_z(mu, log_var)
+
+        mu, log_var = torch.chunk(self.fe(y), 2, dim=1)
+        log_var = torch.sigmoid(log_var)
+        face_kl = self._KL_divergence(mu, log_var)
+        c = self._sample_z(mu, log_var)
+
+        mu, log_var = torch.chunk(self.ud(z, c), 2, dim=1)
+        log_var = torch.sigmoid(log_var)
+        uttr_rc = self._reconstruction(x, mu, log_var)
+        x_hat = self._sample_z(mu, log_var)
+
+        mu, log_var = torch.chunk(self.fd(c.squeeze(-1).squeeze(-1)), 2, dim=1)
+        log_var = torch.sigmoid(log_var)
+        face_rc = self._reconstruction(y, mu, log_var)
+
+        mu, log_var = torch.chunk(self.ve(x_hat), 2, dim=1)
+        log_var = torch.sigmoid(log_var)
+        voice_rc = []
+
+        for i, j in zip(
+            torch.tensor_split(mu, mu.shape[-1], dim=-1),
+            torch.tensor_split(log_var, log_var.shape[-1], dim=-1)
+        ):
+            voice_rc.append(self._reconstruction(c, i, j))
+
+        voice_rc = torch.sum(
+            torch.stack(voice_rc)
+        ).to(self.device)/len(voice_rc)
+
+        return uttr_rc, face_rc, voice_rc, uttr_kl, face_kl
+
+    def rc_image(self, y):
+        c, _ = torch.chunk(self.fe(y), 2, dim=1)
+        y, _ = torch.chunk(self.fd(c.squeeze(-1).squeeze(-1)), 2, dim=1)
+        return y.to(torch.uint8).squeeze(0)
+
+    def _KL_divergence(self, mu, log_var):
+        return -0.5 * torch.sum(1 + log_var - mu.pow(2) - log_var.exp())
+
+    def _reconstruction(self, x, mu, log_var):
+        return torch.sum(log_var + torch.square(x-mu)/log_var.exp())*0.5
+
+    def _sample_z(self, mu, log_var):
+        epsilon = torch.randn(mu.shape, device=self.device)
+        return mu + log_var.exp() * epsilon

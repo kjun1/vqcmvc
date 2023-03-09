@@ -1,0 +1,6 @@
+defaults:
+  - _self_
+  - data: cmvc.yaml
+  - model: cmvc.yaml
+  - paths: default.yaml
+

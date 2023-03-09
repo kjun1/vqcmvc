@@ -1,3 +1,12 @@
+_target_: src.models.cmvc.CrossModalLitModule
+
+optimizer:
+  _target_: torch.optim.AdamW
+
+  _partial_: true
+  lr: 0.00001
+  weight_decay: 0.0
+
 net:
   _target_: src.models.components.net.CrossModal
 

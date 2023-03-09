@@ -47,13 +47,35 @@ class TestNet:
             cfg = compose(config_name="cmvc.yaml", return_hydra_config=True)
             dec = hydra.utils.instantiate(cfg.net.facedec)
         x = torch.ones(64, 8)
-        #print(dec)
-        print(dec(x).shape)
+        assert dec(x).shape == torch.Size([64, 6, 32, 32])
+
+    def test_voiceencoder(self) -> None:
+        with initialize(version_base=None, config_path="../configs/model"):
+            cfg = compose(config_name="cmvc.yaml", return_hydra_config=True)
+            enc = hydra.utils.instantiate(cfg.net.voiceenc)
+        x = torch.ones(64, 1, 36, 40)
+        assert enc(x).shape == torch.Size([64, 16, 1, 5])
 
     def test_instantiate(self) -> None:
+        with initialize(version_base=None, config_path="../configs"):
+            cfg = compose(config_name="train.yaml", return_hydra_config=True)
+            assert hydra.utils.instantiate(cfg.model)
+
+    def test_crossmodal(self) -> None:
         with initialize(version_base=None, config_path="../configs/model"):
-            cfg = compose(config_name="cmvc copy.yaml", return_hydra_config=True)
-            assert hydra.utils.instantiate(cfg.net)
+            cfg = compose(config_name="cmvc.yaml", return_hydra_config=True)
+            net = hydra.utils.instantiate(cfg.net)
+        x = torch.ones(64, 1, 36, 40)
+        y = torch.ones(64, 3, 32, 32)
+        net.device = "cpu"
+        print(net.loss_function(x, y))
+
+    def test_data(self) -> None:
+        with initialize(version_base=None, config_path="../configs"):
+            cfg = compose(config_name="train.yaml", return_hydra_config=True)
+            assert hydra.utils.instantiate(cfg.data)
+            datamodule = hydra.utils.instantiate(cfg.data)
+            datamodule.setup(0)
 
 
 """

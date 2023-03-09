@@ -11,97 +11,6 @@
 	"containerEnv": {
 		"WORKSPACE": "/home/workspace"
 	},
-	// Add the IDs of extensions you want installed when the container is created.
-	"extensions": [
-		"ms-python.python",
-		"ms-python.black-formatter",
-		"usernamehw.errorlens",
-		"oderwat.indent-rainbow",
-		"shardulm94.trailing-spaces",
-		"njpwerner.autodocstring",
-		"ryanluker.vscode-coverage-gutters"
-	],
-	// Set "default" container specific settings.json value on container create.
-	"settings": {
-		"files.insertFinalNewline": true,
-		"files.trimTrailingWhitespace": true,
-		"python.formatting.blackPath": "/root/.pyenv/shims/black",
-		"python.formatting.provider": "black",
-		"black-formatter.args": [
-			"--line-length=79"
-		],
-		"editor.formatOnSave": true,
-		"python.linting.flake8Enabled": true,
-		"python.linting.flake8Path": "/root/.pyenv/shims/flake8",
-		"python.linting.flake8CategorySeverity.E": "Warning",
-		"python.linting.flake8CategorySeverity.F": "Warning",
-		"python.linting.flake8CategorySeverity.W": "Warning",
-		"isort.path": [
-			"/root/.pyenv/shims/isort"
-		],
-		"editor.codeActionsOnSave": {
-			"source.organizeImports": true
-		},
-		"python.linting.mypyCategorySeverity.error": "Information",
-		"python.linting.mypyEnabled": true,
-		"python.linting.mypyPath": "/root/.pyenv/shims/mypy",
-		"python.linting.mypyArgs": [
-			"--follow-imports=skip",
-			"--ignore-missing-imports",
-			"--show-column-numbers",
-			"--no-pretty",
-			"--warn-return-any",
-			"--no-implicit-optional",
-			"--disallow-untyped-calls",
-			"--disallow-untyped-defs"
-		],
-		"python.defaultInterpreterPath": "/root/.pyenv/shims/python",
-		"python.linting.prospectorEnabled": false,
-		"python.linting.pycodestyleEnabled": false,
-		"python.linting.pydocstyleEnabled": false,
-		"python.linting.enabled": true,
-		"python.testing.pytestPath": "/root/.pyenv/shims/pytest",
-		// 単体テストツールとしてpytestを有効化
-		"python.testing.unittestEnabled": false,
-		"python.testing.pytestEnabled": true,
-		// ファイル保存時にテスト対象を自動的に探索
-		"python.testing.autoTestDiscoverOnSaveEnabled": true,
-		// pytest実行時の引数設定を追加
-		// --cov: カバレッジ計測の有効化
-		// --cov-report xml: カバレッジ計測レポートをxml形式(coverage.xml)で出力
-		"python.testing.pytestArgs": [
-			"--cov=src",
-			"--cov-report",
-			"xml"
-		],
-		// エディタ上のカバレッジ表示設定
-		// ガター(ブレークポイント等が表示される場所)でのカバレッジ表示有無(default: true)
-		"coverage-gutters.showGutterCoverage": true,
-		// エディタ行でのカバレッジ表示有無(default: false)
-		"coverage-gutters.showLineCoverage": true,
-		// ルーラーでのカバレッジ表示有無(default: false)
-		"coverage-gutters.showRulerCoverage": true,
-		// debugとcoverageの競合設定
-		"launch": {
-			"version": "0.2.0",
-			"configurations": [
-				{
-					"name": "Python: Current File",
-					"type": "python",
-					"request": "launch",
-					"program": "${file}",
-					"console": "integratedTerminal",
-					"justMyCode": true,
-					"purpose": [
-						"debug-test"
-					],
-					"env": {
-						"PYTEST_ADDOPTS": "--no-cov"
-					}
-				}
-			]
-		}
-	},
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	//"features": {
 	//	"ghcr.io/devcontainers/features/nvidia-cuda:1": {"cudaVersion": "11.６"}
@@ -109,10 +18,106 @@
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
 	// Configure tool-specific properties.
-	// "customizations": {},
+	"customizations": {
+		"vscode": {
+			// Add the IDs of extensions you want installed when the container is created.
+			"extensions": [
+				"ms-python.python",
+				"ms-python.black-formatter",
+				"usernamehw.errorlens",
+				"oderwat.indent-rainbow",
+				"shardulm94.trailing-spaces",
+				"njpwerner.autodocstring",
+				"ryanluker.vscode-coverage-gutters"
+			],
+			// Set "default" container specific settings.json value on container create.
+			"settings": {
+				"files.insertFinalNewline": true,
+				"files.trimTrailingWhitespace": true,
+				"python.formatting.blackPath": "/root/.pyenv/shims/black",
+				"python.formatting.provider": "black",
+				"black-formatter.args": [
+					"--line-length=79"
+				],
+				"editor.formatOnSave": true,
+				"python.linting.flake8Enabled": true,
+				"python.linting.flake8Path": "/root/.pyenv/shims/flake8",
+				"python.linting.flake8CategorySeverity.E": "Warning",
+				"python.linting.flake8CategorySeverity.F": "Warning",
+				"python.linting.flake8CategorySeverity.W": "Warning",
+				"isort.path": [
+					"/root/.pyenv/shims/isort"
+				],
+				"editor.codeActionsOnSave": {
+					"source.organizeImports": true
+				},
+				"python.linting.mypyCategorySeverity.error": "Information",
+				"python.linting.mypyEnabled": true,
+				"python.linting.mypyPath": "/root/.pyenv/shims/mypy",
+				"python.linting.mypyArgs": [
+					"--follow-imports=skip",
+					"--ignore-missing-imports",
+					"--show-column-numbers",
+					"--no-pretty",
+					"--warn-return-any",
+					"--no-implicit-optional",
+					"--disallow-untyped-calls",
+					"--disallow-untyped-defs"
+				],
+				"python.defaultInterpreterPath": "/root/.pyenv/shims/python",
+				"python.linting.prospectorEnabled": false,
+				"python.linting.pycodestyleEnabled": false,
+				"python.linting.pydocstyleEnabled": false,
+				"python.linting.enabled": true,
+				"python.testing.pytestPath": "/root/.pyenv/shims/pytest",
+				// 単体テストツールとしてpytestを有効化
+				"python.testing.unittestEnabled": false,
+				"python.testing.pytestEnabled": true,
+				// ファイル保存時にテスト対象を自動的に探索
+				"python.testing.autoTestDiscoverOnSaveEnabled": true,
+				// pytest実行時の引数設定を追加
+				// --cov: カバレッジ計測の有効化
+				// --cov-report xml: カバレッジ計測レポートをxml形式(coverage.xml)で出力
+				"python.testing.pytestArgs": [
+					"--cov=src",
+					"--cov-report",
+					"xml"
+				],
+				// エディタ上のカバレッジ表示設定
+				// ガター(ブレークポイント等が表示される場所)でのカバレッジ表示有無(default: true)
+				"coverage-gutters.showGutterCoverage": true,
+				// エディタ行でのカバレッジ表示有無(default: false)
+				"coverage-gutters.showLineCoverage": true,
+				// ルーラーでのカバレッジ表示有無(default: false)
+				"coverage-gutters.showRulerCoverage": true,
+				// debugとcoverageの競合設定
+				"launch": {
+					"version": "0.2.0",
+					"configurations": [
+						{
+							"name": "Python: Current File",
+							"type": "python",
+							"request": "launch",
+							"program": "${file}",
+							"console": "integratedTerminal",
+							"justMyCode": true,
+							"purpose": [
+								"debug-test"
+							],
+							"env": {
+								"PYTEST_ADDOPTS": "--no-cov"
+							}
+						}
+					]
+				}
+			}
+		}
+	},
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
 	// "remoteUser": "root"
 	"runArgs": [
+		"--mount",
+		"type=bind,source=/media,target=/media",
 		"--gpus",
 		"all"
 	]
