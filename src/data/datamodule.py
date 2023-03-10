@@ -47,7 +47,7 @@ class CrossJVSDataModule(LightningDataModule):
 
     def val_dataloader(self):
         return DataLoader(
-            dataset=self.data_val,
+            dataset=self.data_valid,
             batch_size=self.hparams.batch_size,
             num_workers=self.hparams.num_workers,
             pin_memory=self.hparams.pin_memory,
