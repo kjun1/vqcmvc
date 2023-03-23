@@ -31,7 +31,7 @@ class CrossJVSDataModule(LightningDataModule):
         if not self.data_train and not self.data_valid:
             dataset = CrossDataset(audio_data_dir=self.audio_data_dir, image_data_dir=self.image_data_dir)
 
-            self.data_train, self.data_valid = random_split(
+            self.data_train, self.data_valid, self.data_test = random_split(
                 dataset=dataset,
                 lengths=self.hparams.train_val_test_split
             )
@@ -46,6 +46,15 @@ class CrossJVSDataModule(LightningDataModule):
         )
 
     def val_dataloader(self):
+        return DataLoader(
+            dataset=self.data_valid,
+            batch_size=self.hparams.batch_size,
+            num_workers=self.hparams.num_workers,
+            pin_memory=self.hparams.pin_memory,
+            shuffle=False,
+        )
+
+    def test_dataloader(self):
         return DataLoader(
             dataset=self.data_valid,
             batch_size=self.hparams.batch_size,

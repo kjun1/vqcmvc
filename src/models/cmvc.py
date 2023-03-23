@@ -15,29 +15,34 @@ class CrossModalLitModule(pl.LightningModule):
     def training_step(self, batch, batch_idx):
         x, y = batch[1], batch[0]
         uttr_rc, face_rc, voice_rc, uttr_kl, face_kl = self.net.loss_function(x, y)
-        uttr_loss = uttr_rc
-        uttr_loss += uttr_kl
 
-        face_loss = face_rc
-        face_loss += voice_rc
-        face_loss += face_kl
+        loss = 0.01 * uttr_rc
+        loss += face_rc
+        loss += 0.001 * voice_rc
+        loss += 0.01 * uttr_kl
+        loss += face_kl
 
-        train_loss = uttr_loss + face_loss
+        self.log("train/loss", loss, on_step=False, on_epoch=True, prog_bar=True)
+        self.log("train/uttr", uttr_rc, on_step=False, on_epoch=True, prog_bar=True)
+        self.log("train/face", face_rc, on_step=False, on_epoch=True, prog_bar=True)
 
-        self.log("train_loss", train_loss)
-
-        return train_loss
+        return {"loss": loss}
 
     def validation_step(self, batch, batch_idx):
         x, y = batch[1], batch[0]
         uttr_rc, face_rc, voice_rc, uttr_kl, face_kl = self.net.loss_function(x, y)
-        loss = uttr_rc
+        loss = 0.01 * uttr_rc
         loss += face_rc
-        loss += voice_rc
-        loss += uttr_kl
+        loss += 0.001 * voice_rc
+        loss += 0.01 * uttr_kl
         loss += face_kl
 
-        self.log("val_loss", loss)
+        self.log("val/loss", loss, on_step=False, on_epoch=True, prog_bar=True)
+
+        return {"loss": loss}
+
+    def test_step(self, batch, batch_idx: int):
+        pass
 
     def test_input(self):
         print("input")

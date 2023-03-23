@@ -118,6 +118,7 @@
 	"runArgs": [
 		"--mount",
 		"type=bind,source=/media,target=/media",
+		"--shm-size=16gb",
 		"--gpus",
 		"all"
 	]

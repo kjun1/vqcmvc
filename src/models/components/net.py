@@ -51,7 +51,7 @@ class UttrEncoder(nn.Module):
                     params[f'conv{i}_kernel'],
                     params[f'conv{i}_stride']
                     ),
-                bias=False, padding_mode='replicate'
+                bias=False,
             )
             self.model[f'bn{i}'] = nn.BatchNorm2d(
                 params[f'conv{i}_channels']*2
@@ -66,7 +66,7 @@ class UttrEncoder(nn.Module):
                     params[f'conv{self.num_layers}_kernel'],
                     params[f'conv{self.num_layers}_stride']
                     ),
-            bias=False, padding_mode='replicate'
+            bias=False,
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -154,7 +154,7 @@ class FaceEncoder(nn.Module):
                     params[f'conv{i}_kernel'],
                     params[f'conv{i}_stride']
                     ),
-                bias=False, padding_mode='replicate'
+                bias=False,
             )
             self.model[f'bn{i}'] = nn.BatchNorm2d(
                 params[f'conv{i}_channels']
@@ -228,7 +228,7 @@ class FaceDecoder(nn.Module):
                     params[f'conv{self.conv_layers}_kernel'],
                     params[f'conv{self.conv_layers}_stride']
                     ),
-            bias=False, padding_mode='replicate'
+            bias=False,
         )
 
     def forward(self, x):
@@ -236,7 +236,6 @@ class FaceDecoder(nn.Module):
             x = self.model[f'linear{i}'](x)
             x = self.model['activation'](x)
         h = int(math.sqrt(self.model[f'linear{self.linear_layers}'].out_features / self.model['deconv1'].in_channels))
-        print(x.shape)
         x = x.view(x.shape[0], self.model['deconv1'].in_channels, h, h)
 
         for i in range(1, self.conv_layers):
@@ -270,7 +269,7 @@ class VoiceEncoder(nn.Module):
                     params[f'conv{i}_kernel'],
                     params[f'conv{i}_stride']
                     ),
-                bias=False, padding_mode='replicate'
+                bias=False,
             )
             self.model[f'bn{i}'] = nn.BatchNorm2d(
                 params[f'conv{i}_channels']*2
@@ -285,7 +284,7 @@ class VoiceEncoder(nn.Module):
                 params[f'conv{self.num_layers}_kernel'],
                 params[f'conv{self.num_layers}_stride']
                 ),
-            bias=False, padding_mode='replicate'
+            bias=False,
             )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -344,7 +343,7 @@ class CrossModal(nn.Module):
 
         voice_rc = torch.sum(
             torch.stack(voice_rc)
-        ).to(self.device)/len(voice_rc)
+        )/len(voice_rc)
 
         return uttr_rc, face_rc, voice_rc, uttr_kl, face_kl
 
@@ -360,5 +359,8 @@ class CrossModal(nn.Module):
         return torch.sum(log_var + torch.square(x-mu)/log_var.exp())*0.5
 
     def _sample_z(self, mu, log_var):
-        epsilon = torch.randn(mu.shape, device=self.device)
-        return mu + log_var.exp() * epsilon
+        std = torch.exp(log_var / 2)
+        q = torch.distributions.Normal(mu, std)
+        z = q.rsample()
+
+        return z
